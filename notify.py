@@ -31,27 +31,28 @@ if __name__ == '__main__':
     new_jobs = current_jobs - intersection
     removed_jobs = known_jobs - intersection
 
-    message = """
-Ahoy!  Some changes have been detected in github's job page.  Here's the scoop:
+    if len(new_jobs) > 0 or len(removed_jobs) > 0:
+        message = """
+        Ahoy!  Some changes have been detected in github's job page.  Here's the scoop:
 
-%s
+        %s
 
-That's it for now!
-"""
+        That's it for now!
+        """
 
 
-    def build_ul(jobs_set):
-        li_template = '<li><a href="%s">%s</a></li>'
-        links = [li_template % (job, current_jobs[job]) for job in new_jobs]
-        return  '<ul>%s</ul>' % ''.join(links)
+        def build_ul(jobs_set):
+            li_template = '<li><a href="%s">%s</a></li>'
+            links = [li_template % (job, current_jobs[job]) for job in new_jobs]
+            return  '<ul>%s</ul>' % ''.join(links)
 
-    changes_string = ''
-    if len(new_jobs) > 0:
-        changes_string += 'Added positions: '
-        changes_string += build_ul(new_jobs)
+        changes_string = ''
+        if len(new_jobs) > 0:
+            changes_string += 'Added positions: '
+            changes_string += build_ul(new_jobs)
 
-    if len(removed_jobs) > 0:
-        changes_string += 'Closed positions: '
-        changes_string += build_ul(removed_jobs)
+        if len(removed_jobs) > 0:
+            changes_string += 'Closed positions: '
+            changes_string += build_ul(removed_jobs)
 
-    message = message % changes_string
+        message = message % changes_string
