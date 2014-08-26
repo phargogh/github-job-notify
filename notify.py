@@ -39,8 +39,19 @@ Ahoy!  Some changes have been detected in github's job page.  Here's the scoop:
 That's it for now!
 """
 
-    changes_string = ''
-    if len(new_jobs) > 0:
+
+    def build_ul(jobs_set):
         li_template = '<li><a href="%s">%s</a></li>'
         links = [li_template % (job, current_jobs[job]) for job in new_jobs]
-        changes_string += '<ul>%s</ul>' % ''.join(links)
+        return  '<ul>%s</ul>' % ''.join(links)
+
+    changes_string = ''
+    if len(new_jobs) > 0:
+        changes_string += 'Added positions: '
+        changes_string += build_ul(new_jobs)
+
+    if len(removed_jobs) > 0:
+        changes_string += 'Closed positions: '
+        changes_string += build_ul(removed_jobs)
+
+    message = message % changes_string
