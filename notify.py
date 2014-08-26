@@ -61,7 +61,7 @@ if __name__ == '__main__':
         # build up an email to send
         # ASSUMES TWO THINGS:
         #  - localhost is an smtp server
-        #  - there's a file in CWD tha contains the target email address
+        #  - there's a file in CWD that contains the target email address
         server = smtplib.SMTP('localhost')
         email_address = json.load(open('email_address.txt'))
         server.sendmail(email_address, email_address, message)
