@@ -18,4 +18,19 @@ if __name__ == '__main__':
     if not os.path.exists(current_uri):
         json.dump(jobs, open(current_uri, 'w'), indent=4,
             sort_keys=True)
+        past_jobs = jobs
+    else:
+        # we have a known job state that we're comparing against, so load that.
+        past_jobs = json.load(open(current_uri))
+
+    known_jobs = set(past_jobs.keys())
+    current_jobs = set(jobs.keys())
+
+    intersection = current_jobs.intersection(known_jobs)
+
+    new_jobs = current_jobs - intersection
+    removed_jobs = known_jobs - intersection
+
+    print new_jobs
+    print removed_jobs
 
