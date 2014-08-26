@@ -11,7 +11,6 @@ if __name__ == '__main__':
 
     open_positions = jobs_soup.find('div', 'jobs-open-positions').find_all('a')
     jobs = dict((job.string, job['href']) for job in open_positions)
-    print jobs
 
     # If the list does not exist in JSON, save it.  We need to have an existing
     # record to be able to check
