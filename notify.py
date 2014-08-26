@@ -31,6 +31,12 @@ if __name__ == '__main__':
     new_jobs = current_jobs - intersection
     removed_jobs = known_jobs - intersection
 
-    print new_jobs
-    print removed_jobs
+    message = """
+Ahoy!  Some changes have been detected in github's job page.  Here's the scoop:
+
+%s
+
+That's it for now!
+"""
+
 
