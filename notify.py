@@ -1,6 +1,7 @@
 import json
 import os
 import urllib2
+import smtplib
 
 from bs4 import BeautifulSoup
 
@@ -56,3 +57,12 @@ if __name__ == '__main__':
             changes_string += build_ul(removed_jobs)
 
         message = message % changes_string
+
+        # build up an email to send
+        # ASSUMES TWO THINGS:
+        #  - localhost is an smtp server
+        #  - there's a file in CWD tha contains the target email address
+        server = smtplib.SMTP('localhost')
+        email_address = json.load(open('email_address.txt'))
+        server.sendmail(email_address, email_address, message)
+
