@@ -64,6 +64,6 @@ if __name__ == '__main__':
         server = smtplib.SMTP('localhost')
         email_file = os.path.join(os.path.dirname(__file__),
             'email_address.txt')
-        email_address = json.load(open(email_file))
+        email_address = open(email_file).read()
         server.sendmail(email_address, email_address, message)
 
