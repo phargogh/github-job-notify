@@ -17,7 +17,7 @@ def get_jobs(html_doc):
 
 if __name__ == '__main__':
     jobs_html_doc = urllib2.urlopen('https://github.com/about/jobs').read()
-    jobs = get_jobs(html_doc)
+    jobs = get_jobs(jobs_html_doc)
 
     # If the list does not exist in JSON, save it.  We need to have an existing
     # record to be able to check
