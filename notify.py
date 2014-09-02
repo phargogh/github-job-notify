@@ -5,12 +5,19 @@ import smtplib
 
 from bs4 import BeautifulSoup
 
-if __name__ == '__main__':
-    jobs_html_doc = urllib2.urlopen('https://github.com/about/jobs').read()
+
+def get_jobs(html_doc):
+    """Take an HTML doc (in a string) and parse out the jobs that are found.
+    Returns a dictionary mapping {job title: job URI}."""
     jobs_soup = BeautifulSoup(jobs_html_doc)
 
     open_positions = jobs_soup.find('div', 'jobs-open-positions').find_all('a')
     jobs = dict((job.string, job['href']) for job in open_positions)
+    return jobs
+
+if __name__ == '__main__':
+    jobs_html_doc = urllib2.urlopen('https://github.com/about/jobs').read()
+    jobs = get_jobs(html_doc)
 
     # If the list does not exist in JSON, save it.  We need to have an existing
     # record to be able to check
