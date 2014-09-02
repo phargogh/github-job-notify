@@ -30,6 +30,7 @@ if __name__ == '__main__':
         # we have a known job state that we're comparing against, so load that.
         past_jobs = json.load(open(current_uri))
 
+    all_jobs = dict(jobs.items() + past_jobs.items())
     known_jobs = set(past_jobs.keys())
     current_jobs = set(jobs.keys())
 
@@ -50,7 +51,7 @@ if __name__ == '__main__':
 
         def build_ul(jobs_set):
             li_template = '<li><a href="%s">%s</a></li>'
-            links = [li_template % (job, current_jobs[job]) for job in jobs_set]
+            links = [li_template % (job, all_jobs[job]) for job in jobs_set]
             return  '<ul>%s</ul>' % ''.join(links)
 
         changes_string = ''
