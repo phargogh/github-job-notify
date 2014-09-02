@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
         def build_ul(jobs_set):
             li_template = '<li><a href="%s">%s</a></li>'
-            links = [li_template % (job, current_jobs[job]) for job in new_jobs]
+            links = [li_template % (job, current_jobs[job]) for job in jobs_set]
             return  '<ul>%s</ul>' % ''.join(links)
 
         changes_string = ''
