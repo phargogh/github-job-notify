@@ -53,17 +53,17 @@ if __name__ == '__main__':
 
 
         def build_ul(jobs_set):
-            li_template = '<li><a href="%s">%s</a></li>'
+            li_template = '\t%s: %s'
             links = [li_template % (job, all_jobs[job]) for job in jobs_set]
-            return  '<ul>%s</ul>' % ''.join(links)
+            return  '\n'.join(links)
 
         changes_string = ''
         if len(new_jobs) > 0:
-            changes_string += 'Added positions: '
+            changes_string += 'Added positions:\n'
             changes_string += build_ul(new_jobs)
 
         if len(removed_jobs) > 0:
-            changes_string += 'Closed positions: '
+            changes_string += 'Closed positions:\n'
             changes_string += build_ul(removed_jobs)
 
         message = message % changes_string
