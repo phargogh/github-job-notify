@@ -30,6 +30,9 @@ if __name__ == '__main__':
         # we have a known job state that we're comparing against, so load that.
         past_jobs = json.load(open(current_uri))
 
+    # write the current job state to JSON
+    json.dump(jobs, open(current_uri, 'w'), indent=4, sort_keys=True)
+
     all_jobs = dict(jobs.items() + past_jobs.items())
     known_jobs = set(past_jobs.keys())
     current_jobs = set(jobs.keys())
