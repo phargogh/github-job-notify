@@ -55,7 +55,7 @@ if __name__ == '__main__':
         def build_ul(jobs_set):
             li_template = '\t%s: %s'
             links = [li_template % (job, all_jobs[job]) for job in jobs_set]
-            return  '\n'.join(links)
+            return  '\n'.join(links) + '\n\n'
 
         changes_string = ''
         if len(new_jobs) > 0:
