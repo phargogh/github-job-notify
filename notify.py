@@ -9,7 +9,9 @@ from bs4 import BeautifulSoup
 def get_jobs(html_doc):
     """Take an HTML doc (in a string) and parse out the jobs that are found.
     Returns a dictionary mapping {job title: job URI}."""
-    jobs_soup = BeautifulSoup(jobs_html_doc)
+
+    # Assuming lxml to stop a warning on Linux.
+    jobs_soup = BeautifulSoup(jobs_html_doc, "lxml")
 
     open_positions = jobs_soup.find('div', 'jobs-open-positions').find_all('a')
     jobs = dict((job.string, job['href']) for job in open_positions)
