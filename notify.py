@@ -2,8 +2,42 @@ import json
 import os
 import urllib2
 import smtplib
+import sys
+import codecs
 
 from bs4 import BeautifulSoup
+import requests
+
+
+def atlassian():
+    #import dryscrape
+    url = ("https://www.atlassian.com/company/careers/all-jobs?"
+           "team=Engineering&location=San%20Francisco")
+    url = "https://careers.smartrecruiters.com/Atlassian"
+    url = "https://careers.smartrecruiters.com/Atlassian?search=san%20francisco"
+    url = "https://www.atlassian.com/company/careers/locations/san-francisco"
+    url = "https://www.atlassian.com/company/careers/all-jobs"
+
+    data = {
+        'team': 'Engineering',
+        'location': 'San Francisco'
+    }
+    response = requests.post(url, data=data)
+    html = response.content
+
+    #session = dryscrape.Session(base_url=url)
+    #session.interact()
+    #query = session.at_xpath('//*[@name="searchForm"]')
+    #query.form().submit()
+    #html = session.body()
+    print html
+    jobs_soup = BeautifulSoup(html, "lxml")
+    codecs.open('atlassian.html', 'wb', 'utf-8').write(html)
+
+    #open_positions = jobs_soup.find('table', class_='careers-job-list').find_all('a')
+    open_positions = jobs_soup.find('div', class_='all-job-groups').find_all('a')
+    jobs = dict((job.string, job['href']) for job in open_positions)
+    return jobs
 
 
 def get_jobs(html_doc):
@@ -18,6 +52,9 @@ def get_jobs(html_doc):
     return jobs
 
 if __name__ == '__main__':
+    #print atlassian()
+    #sys.exit(0)
+
     jobs_html_doc = urllib2.urlopen('https://github.com/about/jobs').read()
     jobs = get_jobs(jobs_html_doc)
 
