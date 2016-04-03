@@ -63,18 +63,12 @@ def atlassian():
     return jobs
 
 
-if __name__ == '__main__':
-    #print atlassian()
-    #sys.exit(0)
-
-    jobs = github()
-
-    # If the list does not exist in JSON, save it.  We need to have an existing
-    # record to be able to check
-    current_uri = 'current_jobs.json'
+def _find_changes_to_jobs(json_filename, jobs_dict):
+    # If the list does not exist in JSON, save it.  We need to have an
+    # existing record to be able to check
     if not os.path.exists(current_uri):
         json.dump(jobs, open(current_uri, 'w'), indent=4,
-            sort_keys=True)
+                    sort_keys=True)
         past_jobs = jobs
     else:
         # we have a known job state that we're comparing against, so load that.
@@ -83,49 +77,92 @@ if __name__ == '__main__':
     # write the current job state to JSON
     json.dump(jobs, open(current_uri, 'w'), indent=4, sort_keys=True)
 
-    all_jobs = dict(jobs.items() + past_jobs.items())
+    all_jobs = dict(jobs_dict.items() + past_jobs.items())
     known_jobs = set(past_jobs.keys())
-    current_jobs = set(jobs.keys())
+    current_jobs = set(jobs_dict.keys())
 
     intersection = current_jobs.intersection(known_jobs)
 
     new_jobs = current_jobs - intersection
     removed_jobs = known_jobs - intersection
+    return new_jobs, removed_jobs, all_jobs
 
-    if len(new_jobs) > 0 or len(removed_jobs) > 0:
-        message = """
-        Ahoy!  Some changes have been detected in github's job page.  Here's the scoop:
 
-        %s
+def _format_email(jobs_dict):
+    message_template = """
+    Ahoy!  Some changes have been detected.  Here's the scoop:
 
-        That's it for now!
-        """
+    {company_sections}
 
-        def build_ul(jobs_set, link=True):
-            if link:
-                links = ['\t%s: %s' % (job, all_jobs[job]) for job in jobs_set]
-            else:
-                links = ['\t%s' % job for job in jobs_set]
-            return '\n'.join(links) + '\n\n'
+    That's it for now!
+    """
 
-        changes_string = ''
-        if len(new_jobs) > 0:
-            changes_string += 'Added positions:\n'
-            changes_string += build_ul(new_jobs)
+    company_section_template = """
+    ****{company}****
+        Added positions: {added_positions}
 
-        if len(removed_jobs) > 0:
-            changes_string += 'Closed positions:\n'
-            changes_string += build_ul(removed_jobs, link=False)
+        Removed positions: {removed_positions}
+    """
 
-        message = message % changes_string
+    company_sections = []
+    for company, company_data in jobs_dict.iteritems():
+        if len(company_data['added']) > 0:
+            added_positions = [
+                '\t{name}: {link}'.format(name=jobname, link=link)
+                for jobname, link in company_data['added'].iteritems()]
+            added_positions = '\n'.join(added_positions) + '\n\n'
+        else:
+            added_positions = 'None\n'
 
-        # build up an email to send
-        # ASSUMES TWO THINGS:
-        #  - localhost is an smtp server
-        #  - there's a file in CWD that contains the target email address
-        server = smtplib.SMTP('localhost')
-        email_file = os.path.join(os.path.dirname(__file__),
-            'email_address.txt')
-        email_address = open(email_file).read()
-        server.sendmail(email_address, email_address, message)
+        if len(company_data['removed']) > 0:
+            removed_positions = [
+                '\t{name}'.format(name=jobname)
+                for jobname, link in company_data['removed'].iteritems()]
+            removed_positions = '\n'.join(removed_positions) + '\n\n'
+        else:
+            removed_positions = 'None\n'
 
+        company_section = company_section_template.format(
+            company=company,
+            added_positions=added_positions,
+            removed_positions=removed_positions)
+        company_sections.append(company_section)
+
+    return message_template.format(
+        company_sections='\n\n'.join(company_sections))
+
+
+if __name__ == '__main__':
+    print gitlab()
+    #sys.exit(0)
+
+    parsers = [
+        ('GitLab', gitlab),
+        ('GitHub', github),
+    ]
+    current_uri_template = 'current_jobs_{name}.json'
+    jobs_data = {}
+    for company, parser in parsers:
+        current_uri = current_uri_template.format(name=company.lower())
+        jobs = parser()
+
+        new_jobs, removed_jobs, all_jobs = _find_changes_to_jobs(current_uri,
+                                                                 jobs)
+
+        jobs_data[company] = {
+            'added': new_jobs,
+            'removed': removed_jobs,
+            'all': all_jobs
+        }
+
+    message = _format_email(jobs_data)
+
+    # build up an email to send
+    # ASSUMES TWO THINGS:
+    #  - localhost is an smtp server
+    #  - there's a file in CWD that contains the target email address
+    server = smtplib.SMTP('localhost')
+    email_file = os.path.join(os.path.dirname(__file__),
+                              'email_address.txt')
+    email_address = open(email_file).read()
+    server.sendmail(email_address, email_address, message)
