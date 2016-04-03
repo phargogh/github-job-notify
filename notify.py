@@ -23,6 +23,15 @@ def gitlab():
     return jobs
 
 
+def github():
+    url = 'https://github.com/about/jobs'
+    jobs_soup = BeautifulSoup(_get_page(url), "lxml")
+
+    open_positions = jobs_soup.find('div', 'jobs-open-positions').find_all('a')
+    jobs = dict((job.string, job['href']) for job in open_positions)
+    return jobs
+
+
 def atlassian():
     #import dryscrape
     url = ("https://www.atlassian.com/company/careers/all-jobs?"
@@ -54,23 +63,11 @@ def atlassian():
     return jobs
 
 
-def get_jobs(html_doc):
-    """Take an HTML doc (in a string) and parse out the jobs that are found.
-    Returns a dictionary mapping {job title: job URI}."""
-
-    # Assuming lxml to stop a warning on Linux.
-    jobs_soup = BeautifulSoup(jobs_html_doc, "lxml")
-
-    open_positions = jobs_soup.find('div', 'jobs-open-positions').find_all('a')
-    jobs = dict((job.string, job['href']) for job in open_positions)
-    return jobs
-
 if __name__ == '__main__':
     #print atlassian()
     #sys.exit(0)
 
-    jobs_html_doc = urllib2.urlopen('https://github.com/about/jobs').read()
-    jobs = get_jobs(jobs_html_doc)
+    jobs = github()
 
     # If the list does not exist in JSON, save it.  We need to have an existing
     # record to be able to check
