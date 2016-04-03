@@ -90,11 +90,12 @@ if __name__ == '__main__':
         That's it for now!
         """
 
-
-        def build_ul(jobs_set):
-            li_template = '\t%s: %s'
-            links = [li_template % (job, all_jobs[job]) for job in jobs_set]
-            return  '\n'.join(links) + '\n\n'
+        def build_ul(jobs_set, link=True):
+            if link:
+                links = ['\t%s: %s' % (job, all_jobs[job]) for job in jobs_set]
+            else:
+                links = ['\t%s' % job for job in jobs_set]
+            return '\n'.join(links) + '\n\n'
 
         changes_string = ''
         if len(new_jobs) > 0:
@@ -103,7 +104,7 @@ if __name__ == '__main__':
 
         if len(removed_jobs) > 0:
             changes_string += 'Closed positions:\n'
-            changes_string += build_ul(removed_jobs)
+            changes_string += build_ul(removed_jobs, link=False)
 
         message = message % changes_string
 
