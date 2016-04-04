@@ -133,9 +133,6 @@ def _format_email(jobs_dict):
 
 
 if __name__ == '__main__':
-    print gitlab()
-    #sys.exit(0)
-
     parsers = [
         ('GitLab', gitlab),
         ('GitHub', github),
@@ -155,14 +152,17 @@ if __name__ == '__main__':
             'all': all_jobs
         }
 
-    message = _format_email(jobs_data)
+    # Only send an email if jobs changed.
+    if any([len(data['added']) + len(data['removed']) > 0
+            for data in jobs_data.values()]):
+        message = _format_email(jobs_data)
 
-    # build up an email to send
-    # ASSUMES TWO THINGS:
-    #  - localhost is an smtp server
-    #  - there's a file in CWD that contains the target email address
-    server = smtplib.SMTP('localhost')
-    email_file = os.path.join(os.path.dirname(__file__),
-                              'email_address.txt')
-    email_address = open(email_file).read()
-    server.sendmail(email_address, email_address, message)
+        # build up an email to send
+        # ASSUMES TWO THINGS:
+        #  - localhost is an smtp server
+        #  - there's a file in CWD that contains the target email address
+        server = smtplib.SMTP('localhost')
+        email_file = os.path.join(os.path.dirname(__file__),
+                                'email_address.txt')
+        email_address = open(email_file).read()
+        server.sendmail(email_address, email_address, message)
