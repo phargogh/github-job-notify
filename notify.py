@@ -4,6 +4,7 @@ import urllib2
 import smtplib
 import sys
 import codecs
+import argparse
 
 from bs4 import BeautifulSoup
 import requests
@@ -133,6 +134,20 @@ def _format_email(jobs_dict):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=(
+        'Parse known job sites and assemble a message to be printed or '
+        'emailed.'))
+    parser.add_argument('--email', metavar='EMAIL', default=False, help=(
+        'Send the report via email to the given address.  Assumes localhost '
+        'is an SMTP server.  If not provided, the formatted message will be '
+        'printed to stdout.')
+    )
+    parser.add_argument('--always', action='store_true', default=False,
+                        help=('Always produce a message.  Default is to only '
+                              'produce a message if a change has been '
+                              'detected.'))
+    args = parser.parse_args()
+
     parsers = [
         ('GitLab', gitlab),
         ('GitHub', github),
@@ -154,15 +169,19 @@ if __name__ == '__main__':
 
     # Only send an email if jobs changed.
     if any([len(data['added']) + len(data['removed']) > 0
-            for data in jobs_data.values()]):
+            for data in jobs_data.values()]) or args.always:
         message = _format_email(jobs_data)
 
-        # build up an email to send
-        # ASSUMES TWO THINGS:
-        #  - localhost is an smtp server
-        #  - there's a file in CWD that contains the target email address
-        server = smtplib.SMTP('localhost')
-        email_file = os.path.join(os.path.dirname(__file__),
-                                'email_address.txt')
-        email_address = open(email_file).read()
-        server.sendmail(email_address, email_address, message)
+        if not args.email:
+            print message
+            sys.exit(0)
+        else:
+            # build up an email to send
+            # ASSUMES TWO THINGS:
+            #  - localhost is an smtp server
+            #  - there's a file in CWD that contains the target email address
+            server = smtplib.SMTP('localhost')
+            email_file = os.path.join(os.path.dirname(__file__),
+                                    'email_address.txt')
+            email_address = open(email_file).read()
+            server.sendmail(email_address, email_address, message)
