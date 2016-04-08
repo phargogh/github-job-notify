@@ -34,33 +34,20 @@ def github():
 
 
 def atlassian():
-    #import dryscrape
-    url = ("https://www.atlassian.com/company/careers/all-jobs?"
-           "team=Engineering&location=San%20Francisco")
-    url = "https://careers.smartrecruiters.com/Atlassian"
-    url = "https://careers.smartrecruiters.com/Atlassian?search=san%20francisco"
-    url = "https://www.atlassian.com/company/careers/locations/san-francisco"
-    url = "https://www.atlassian.com/company/careers/all-jobs"
+    base_url = ('https://careers.smartrecruiters.com/Atlassian/'
+                '?search=&page=0&location=')
+    jobs = {}
+    for city in ['San Francisco', 'Palo Alto', 'Santa Clara']:
+        url = base_url + city.replace(' ', '%20')
+        jobs_soup = BeautifulSoup(_get_page(url), "lxml")
+        open_positions = jobs_soup.find(
+            'ul', class_='opening-jobs').find_all('a')
 
-    data = {
-        'team': 'Engineering',
-        'location': 'San Francisco'
-    }
-    response = requests.post(url, data=data)
-    html = response.content
+        job_location = ' (%s)' % city
+        for job in open_positions:
+            title = job.h3.string
+            jobs[title + job_location] = job['href']
 
-    #session = dryscrape.Session(base_url=url)
-    #session.interact()
-    #query = session.at_xpath('//*[@name="searchForm"]')
-    #query.form().submit()
-    #html = session.body()
-    print html
-    jobs_soup = BeautifulSoup(html, "lxml")
-    codecs.open('atlassian.html', 'wb', 'utf-8').write(html)
-
-    #open_positions = jobs_soup.find('table', class_='careers-job-list').find_all('a')
-    open_positions = jobs_soup.find('div', class_='all-job-groups').find_all('a')
-    jobs = dict((job.string, job['href']) for job in open_positions)
     return jobs
 
 
@@ -69,7 +56,7 @@ def _find_changes_to_jobs(json_filename, jobs_dict):
     # existing record to be able to check
     if not os.path.exists(current_uri):
         json.dump(jobs, open(current_uri, 'w'), indent=4,
-                    sort_keys=True)
+                  sort_keys=True)
         past_jobs = jobs
     else:
         # we have a known job state that we're comparing against, so load that.
@@ -151,6 +138,7 @@ if __name__ == '__main__':
     parsers = [
         ('GitLab', gitlab),
         ('GitHub', github),
+        ('Atlassian', atlassian),
     ]
     current_uri_template = 'current_jobs_{name}.json'
     jobs_data = {}
