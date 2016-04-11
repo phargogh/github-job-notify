@@ -53,15 +53,13 @@ def _find_changes_to_jobs(json_filename, jobs_dict):
     # If the list does not exist in JSON, save it.  We need to have an
     # existing record to be able to check
     if not os.path.exists(current_uri):
-        json.dump(jobs, open(current_uri, 'w'), indent=4,
-                  sort_keys=True)
-        past_jobs = jobs
+        past_jobs = {}
     else:
         # we have a known job state that we're comparing against, so load that.
         past_jobs = json.load(open(current_uri))
 
     # write the current job state to JSON
-    json.dump(jobs, open(current_uri, 'w'), indent=4, sort_keys=True)
+    json.dump(jobs_dict, open(current_uri, 'w'), indent=4, sort_keys=True)
 
     all_jobs = dict(jobs_dict.items() + past_jobs.items())
     known_jobs = set(past_jobs.keys())
@@ -85,28 +83,28 @@ def _format_email(jobs_dict):
 
     company_section_template = """
     ****{company}****
-        Added positions: {added_positions}
+        Added positions: \n{added_positions}
 
-        Removed positions: {removed_positions}
+        Removed positions: \n{removed_positions}
     """
-
     company_sections = []
     for company, company_data in jobs_dict.iteritems():
         if len(company_data['added']) > 0:
             added_positions = [
-                '\t{name}: {link}'.format(name=jobname, link=link)
-                for jobname, link in company_data['added'].iteritems()]
+                '\t{name}: {link}'.format(name=jobname,
+                                          link=company_data['all'][jobname])
+                for jobname in company_data['added']]
             added_positions = '\n'.join(added_positions) + '\n\n'
         else:
-            added_positions = 'None\n'
+            added_positions = '\tNone\n'
 
         if len(company_data['removed']) > 0:
             removed_positions = [
                 '\t{name}'.format(name=jobname)
-                for jobname, link in company_data['removed'].iteritems()]
+                for jobname in company_data['removed']]
             removed_positions = '\n'.join(removed_positions) + '\n\n'
         else:
-            removed_positions = 'None\n'
+            removed_positions = '\tNone\n'
 
         company_section = company_section_template.format(
             company=company,
@@ -134,9 +132,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     parsers = [
+        ('Atlassian', atlassian),
         ('GitLab', gitlab),
         ('GitHub', github),
-        ('Atlassian', atlassian),
     ]
     current_uri_template = 'current_jobs_{name}.json'
     jobs_data = {}
