@@ -3,11 +3,9 @@ import os
 import urllib2
 import smtplib
 import sys
-import codecs
 import argparse
 
 from bs4 import BeautifulSoup
-import requests
 
 def _get_page(url):
     return urllib2.urlopen(url).read()
