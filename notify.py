@@ -117,28 +117,38 @@ def _format_email(jobs_dict):
 
 
 if __name__ == '__main__':
+    parsers = [
+        ('Atlassian', atlassian),
+        ('Basecamp', basecamp),
+        ('GitLab', gitlab),
+        ('GitHub', github),
+    ]
     parser = argparse.ArgumentParser(description=(
         'Parse known job sites and assemble a message to be printed or '
-        'emailed.'))
+        'emailed.  Parses job pages for : {companies}').format(
+        companies=', '.join([a[0] for a in parsers])))
     parser.add_argument('--email', metavar='EMAIL', default=False, help=(
         'Send the report via email to the given address.  Assumes localhost '
         'is an SMTP server.  If not provided, the formatted message will be '
         'printed to stdout.')
     )
+    parser.add_argument('company', metavar='company', default='all', nargs='*',
+                        help=('Only report these companies.  If no companies '
+                              'are provided, all companies will be scraped.'))
     parser.add_argument('--always', action='store_true', default=False,
                         help=('Always produce a message.  Default is to only '
                               'produce a message if a change has been '
                               'detected.'))
     args = parser.parse_args()
 
-    parsers = [
-        ('Atlassian', atlassian),
-        ('GitLab', gitlab),
-        ('GitHub', github),
-    ]
     current_uri_template = 'current_jobs_{name}.json'
     jobs_data = {}
     for company, parser in parsers:
+        # if the user defined companies to use, skip anything that doesn't
+        # match the user's requested companies.
+        if company.lower() not in args.company and len(args.company) > 0:
+            continue
+
         current_uri = current_uri_template.format(name=company.lower())
         jobs = parser()
 
