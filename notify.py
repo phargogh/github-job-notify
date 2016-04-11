@@ -11,6 +11,13 @@ def _get_page(url):
     return urllib2.urlopen(url).read()
 
 
+def basecamp():
+    url = 'https://basecamp.com/about/jobs'
+    jobs_soup = BeautifulSoup(_get_page(url), 'lxml')
+    open_positions = jobs_soup.find('div', class_='centered').find_all('a')
+    jobs = dict((job.string, job['href']) for job in open_positions)
+    return jobs
+
 def gitlab():
     url = 'https://about.gitlab.com/jobs/'
     jobs_soup = BeautifulSoup(_get_page(url), 'lxml')
