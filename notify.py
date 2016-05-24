@@ -4,6 +4,7 @@ import urllib2
 import smtplib
 import sys
 import argparse
+import warnings
 
 from bs4 import BeautifulSoup
 
@@ -153,11 +154,15 @@ if __name__ == '__main__':
     for company, parser in parsers:
         # if the user defined companies to use, skip anything that doesn't
         # match the user's requested companies.
-        if company.lower() not in args.company and len(args.company) > 0:
+        if (company.lower() not in args.company) and args.company != 'all':
             continue
 
         current_uri = current_uri_template.format(name=company.lower())
-        jobs = parser()
+        try:
+            jobs = parser()
+        except AttributeError:
+            warnings.warn('Problem parsing company %s' % company)
+            continue
 
         new_jobs, removed_jobs, all_jobs = _find_changes_to_jobs(current_uri,
                                                                  jobs)
@@ -169,7 +174,7 @@ if __name__ == '__main__':
         }
 
     # Only send an email if jobs changed.
-    if any([len(data['added']) + len(data['removed']) > 0
+    if ([(len(data['added']) + len(data['removed'])) > 0
             for data in jobs_data.values()]) or args.always:
         message = _format_email(jobs_data)
 
@@ -186,3 +191,5 @@ if __name__ == '__main__':
                                     'email_address.txt')
             email_address = open(email_file).read()
             server.sendmail(email_address, email_address, message)
+    else:
+        print 'nope!'
