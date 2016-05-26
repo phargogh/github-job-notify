@@ -15,7 +15,7 @@ def _get_page(url):
 def basecamp():
     url = 'https://basecamp.com/about/jobs'
     jobs_soup = BeautifulSoup(_get_page(url), 'lxml')
-    open_positions = jobs_soup.find('div', class_='centered').find_all('a')
+    open_positions = jobs_soup.find('main').find('ul').find_all('a')
     jobs = dict((job.string, job['href']) for job in open_positions)
     return jobs
 
