@@ -46,8 +46,12 @@ def atlassian():
     for city in ['San Francisco', 'Palo Alto', 'Santa Clara']:
         url = base_url + city.replace(' ', '%20')
         jobs_soup = BeautifulSoup(_get_page(url), "lxml")
-        open_positions = jobs_soup.find(
-            'ul', class_='opening-jobs').find_all('a')
+        try:
+            open_positions = jobs_soup.find(
+                'ul', class_='opening-jobs').find_all('a')
+        except AttributeError:
+            # When there are no job postings available for this city.
+            continue
 
         job_location = ' (%s)' % city
         for job in open_positions:
