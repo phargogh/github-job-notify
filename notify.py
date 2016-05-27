@@ -178,8 +178,8 @@ if __name__ == '__main__':
         }
 
     # Only send an email if jobs changed.
-    if ([(len(data['added']) + len(data['removed'])) > 0
-            for data in jobs_data.values()]) or args.always:
+    if sum([(len(data['added']) + len(data['removed'])) > 0
+            for data in jobs_data.values()]) > 0 or args.always:
         message = _format_email(jobs_data)
 
         if not args.email:
@@ -195,5 +195,3 @@ if __name__ == '__main__':
                                     'email_address.txt')
             email_address = open(email_file).read()
             server.sendmail(email_address, email_address, message)
-    else:
-        print 'nope!'
