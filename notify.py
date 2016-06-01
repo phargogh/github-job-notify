@@ -101,6 +101,10 @@ def _format_email(jobs_dict):
     """
     company_sections = []
     for company, company_data in jobs_dict.iteritems():
+        # Skip this company if there were no changes.
+        if len(company_data['added']) + len(company_data['removed']) == 0:
+            continue
+
         if len(company_data['added']) > 0:
             added_positions = [
                 '\t{name}: {link}'.format(name=jobname,
