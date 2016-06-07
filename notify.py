@@ -8,6 +8,7 @@ import warnings
 
 from bs4 import BeautifulSoup
 
+
 def _get_page(url):
     return urllib2.urlopen(url).read()
 
@@ -19,13 +20,16 @@ def basecamp():
     jobs = dict((job.string, job['href']) for job in open_positions)
     return jobs
 
+
 def gitlab():
     url = 'https://about.gitlab.com/jobs'
     jobs_soup = BeautifulSoup(_get_page(url), 'lxml')
     open_positions = jobs_soup.find(
         'div', class_='container md-page').find_all('h3')
     jobs = dict(
-        (job.string, url + job.find_next_sibling('ul').find('li').a['href'])
+        (job.string,
+         url + job.find_next_sibling('ul').find('li').a['href'].replace(
+             'jobs/', ''))
         for job in open_positions)
     return jobs
 
