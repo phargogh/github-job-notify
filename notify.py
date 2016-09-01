@@ -48,9 +48,14 @@ def atlassian():
     base_url = ('https://careers.smartrecruiters.com/Atlassian/'
                 '?search=&page=0&location=')
     jobs = {}
-    for city in ['San Francisco', 'Palo Alto', 'Santa Clara']:
+    for city in ['San Francisco', 'Palo Alto', 'Santa Clara', 'Mountain View']:
         url = base_url + city.replace(' ', '%20')
-        jobs_soup = BeautifulSoup(_get_page(url), "lxml")
+        try:
+            jobs_soup = BeautifulSoup(_get_page(url), "lxml")
+        except Exception as error:
+            # allow to continue, but log the error.
+            print error
+
         try:
             open_positions = jobs_soup.find(
                 'ul', class_='opening-jobs').find_all('a')
