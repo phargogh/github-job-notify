@@ -79,8 +79,7 @@ def etsy():
     open_positions = jobs_soup.find(
         'div', class_='positions').find_all('a')
     jobs = dict((job.string, etsy + job['href']) for job in open_positions)
-    print jobs
-
+    return jobs
 
 
 def _find_changes_to_jobs(json_filename, jobs_dict):
