@@ -71,6 +71,18 @@ def atlassian():
     return jobs
 
 
+def etsy():
+    etsy = 'https://www.etsy.com/'
+    url = etsy + '/careers/'
+    jobs_soup = BeautifulSoup(_get_page(url), "lxml")
+
+    open_positions = jobs_soup.find(
+        'div', class_='positions').find_all('a')
+    jobs = dict((job.string, etsy + job['href']) for job in open_positions)
+    print jobs
+
+
+
 def _find_changes_to_jobs(json_filename, jobs_dict):
     # If the list does not exist in JSON, save it.  We need to have an
     # existing record to be able to check
@@ -146,6 +158,7 @@ if __name__ == '__main__':
     parsers = [
         ('Atlassian', atlassian),
         ('Basecamp', basecamp),
+        ('Etsy', etsy),
         ('GitLab', gitlab),
         ('GitHub', github),
     ]
@@ -205,7 +218,9 @@ if __name__ == '__main__':
             #  - localhost is an smtp server
             #  - there's a file in CWD that contains the target email address
             server = smtplib.SMTP('localhost')
-            email_file = os.path.join(os.path.dirname(__file__),
+            email_filepath = os.path.join(os.path.dirname(__file__),
                                     'email_address.txt')
-            email_address = open(email_file).read()
-            server.sendmail(email_address, email_address, message)
+            with open(email_filepath) as email_file:
+                for line in email_file:
+                    address = line.strip()
+                    server.sendmail(address, address, message)
