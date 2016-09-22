@@ -129,8 +129,8 @@ def _format_email(jobs_dict):
 
         if len(company_data['added']) > 0:
             added_positions = [
-                '\t{name}: {link}'.format(name=jobname,
-                                          link=company_data['all'][jobname])
+                u'\t{name}: {link}'.format(name=jobname,
+                                           link=company_data['all'][jobname])
                 for jobname in company_data['added']]
             added_positions = '\n'.join(added_positions) + '\n\n'
         else:
