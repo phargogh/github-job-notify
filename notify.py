@@ -72,13 +72,14 @@ def atlassian():
 
 
 def etsy():
-    etsy = 'https://www.etsy.com/'
+    etsy = 'https://www.etsy.com'
     url = etsy + '/careers/'
     jobs_soup = BeautifulSoup(_get_page(url), "lxml")
 
     open_positions = jobs_soup.find(
         'div', class_='positions').find_all('a')
-    jobs = dict((job.string, etsy + job['href']) for job in open_positions)
+    jobs = dict((job.string, etsy + job['href']) for job in open_positions
+                if job.string)
     return jobs
 
 
