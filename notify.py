@@ -191,7 +191,7 @@ if __name__ == '__main__':
         current_uri = current_uri_template.format(name=company.lower())
         try:
             jobs = parser()
-        except AttributeError:
+        except Exception as e:
             warnings.warn('Problem parsing company %s' % company)
             continue
 
