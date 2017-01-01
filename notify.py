@@ -108,7 +108,7 @@ def _find_changes_to_jobs(json_filename, jobs_dict):
 
 
 def _format_email(jobs_dict):
-    message_template = """
+    message_template = u"""
     Ahoy!  Some changes have been detected.  Here's the scoop:
 
     {company_sections}
@@ -116,7 +116,7 @@ def _format_email(jobs_dict):
     That's it for now!
     """
 
-    company_section_template = """
+    company_section_template = u"""
     ****{company}****
         Added positions: \n{added_positions}
 
@@ -133,17 +133,17 @@ def _format_email(jobs_dict):
                 u'\t{name}: {link}'.format(name=jobname,
                                            link=company_data['all'][jobname])
                 for jobname in company_data['added']]
-            added_positions = '\n'.join(added_positions) + '\n\n'
+            added_positions = u'\n'.join(added_positions) + '\n\n'
         else:
-            added_positions = '\tNone\n'
+            added_positions = u'\tNone\n'
 
         if len(company_data['removed']) > 0:
             removed_positions = [
                 '\t{name}'.format(name=jobname)
                 for jobname in company_data['removed']]
-            removed_positions = '\n'.join(removed_positions) + '\n\n'
+            removed_positions = u'\n'.join(removed_positions) + '\n\n'
         else:
-            removed_positions = '\tNone\n'
+            removed_positions = u'\tNone\n'
 
         company_section = company_section_template.format(
             company=company,
