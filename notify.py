@@ -10,7 +10,8 @@ from bs4 import BeautifulSoup
 
 
 def _get_page(url):
-    return urllib2.urlopen(url).read()
+    request = urllib2.Request(url)
+    return urllib2.urlopen(request).read()
 
 
 def basecamp():
@@ -191,8 +192,8 @@ if __name__ == '__main__':
         current_uri = current_uri_template.format(name=company.lower())
         try:
             jobs = parser()
-        except AttributeError:
-            warnings.warn('Problem parsing company %s' % company)
+        except Exception as error:
+            warnings.warn('Problem parsing company %s: %s' % (company, error))
             continue
 
         new_jobs, removed_jobs, all_jobs = _find_changes_to_jobs(current_uri,
