@@ -5,12 +5,17 @@ import smtplib
 import sys
 import argparse
 import warnings
+import logging
 
 from bs4 import BeautifulSoup
 
+logging.basicConfig()
+LOGGER = logging.getLogger()
+
 
 def _get_page(url):
-    request = urllib2.Request(url)
+    request = urllib2.Request(
+        url, headers={'User-Agent': 'Wget/1.13.4 (linux-gnu)'})
     return urllib2.urlopen(request).read()
 
 
@@ -53,9 +58,13 @@ def atlassian():
         url = base_url + city.replace(' ', '%20')
         try:
             jobs_soup = BeautifulSoup(_get_page(url), "lxml")
+        except urllib2.HTTPError as error:
+            warnings.warn('%s: %s' % (url, error))
+            continue
         except Exception as error:
             # allow to continue, but log the error.
-            print error
+            warnings.warn(str(error))
+            continue
 
         try:
             open_positions = jobs_soup.find(
@@ -193,7 +202,7 @@ if __name__ == '__main__':
         try:
             jobs = parser()
         except Exception as error:
-            warnings.warn('Problem parsing company %s: %s' % (company, error))
+            LOGGER.exception('Traceback while parsing company %s', company)
             continue
 
         new_jobs, removed_jobs, all_jobs = _find_changes_to_jobs(current_uri,
@@ -220,7 +229,7 @@ if __name__ == '__main__':
             #  - there's a file in CWD that contains the target email address
             server = smtplib.SMTP('localhost')
             email_filepath = os.path.join(os.path.dirname(__file__),
-                                    'email_address.txt')
+                                          'email_address.txt')
             with open(email_filepath) as email_file:
                 for line in email_file:
                     address = line.strip()
