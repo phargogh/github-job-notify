@@ -41,7 +41,7 @@ def gitlab():
 
 
 def github():
-    url = 'https://github.com/about/jobs'
+    url = 'https://github.com/about/careers'
     jobs_soup = BeautifulSoup(_get_page(url), "lxml")
 
     open_positions = jobs_soup.find_all('ul', 'list-unstyled', 'li')
