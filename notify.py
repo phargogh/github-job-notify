@@ -44,9 +44,13 @@ def github():
     url = 'https://github.com/about/careers'
     jobs_soup = BeautifulSoup(_get_page(url), "lxml")
 
-    open_positions = jobs_soup.find_all('ul', 'list-unstyled', 'li')
-    jobs = dict((job.find('a').string, job.find('a')['href'])
-                for job in open_positions)
+    jobs = {}
+    for column in jobs_soup.find_all('div', class_='col-md-3'):
+        column_title = column.find('h3').string
+        for job in column.find_all('li'):
+            job_title = '%s: %s' % (column_title, job.string)
+            jobs[job_title] = job.find('a')['href']
+
     return jobs
 
 
